@@ -8,6 +8,12 @@ from database import get_connection
 from textblob import TextBlob
 import bcrypt, os, time
 from ai_service import generate_ai_improved_transcript
+from dotenv import load_dotenv
+import google.generativeai as genai
+
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # =========================================================
 # APP SETUP
@@ -205,7 +211,7 @@ def create_session(data: SessionCreate, bg: BackgroundTasks):
 
         conn.commit()
 
-        # 🔥 BACKGROUND AI (HUGGING FACE)
+        # 🔥 BACKGROUND AI (Gemini)
         bg.add_task(
             process_ai,
             data.user_id,

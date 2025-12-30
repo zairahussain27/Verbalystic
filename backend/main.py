@@ -3,10 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date, timedelta
+import bcrypt, os, time
+
 from realtime import sio_app
 from database import get_connection
 from textblob import TextBlob
-import bcrypt, os, time
 from ai_service import generate_ai_improved_transcript
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -14,6 +15,7 @@ import google.generativeai as genai
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
 
 # =========================================================
 # APP SETUP
@@ -29,14 +31,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # =========================================================
 # PASSWORD UTILS
 # =========================================================
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
+
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed.encode())
+
 
 # =========================================================
 # MODELS
@@ -46,9 +51,11 @@ class UserSignup(BaseModel):
     email: EmailStr
     password: str
 
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
 
 class SessionCreate(BaseModel):
     user_id: str
@@ -57,14 +64,6 @@ class SessionCreate(BaseModel):
     duration_seconds: Optional[int] = None
     avg_wpm: Optional[int] = None
 
-class AnalysisCreate(BaseModel):
-    session_id: str
-    vocabulary_score: Optional[float] = None
-    fluency_score: Optional[float] = None
-    clarity_score: Optional[float] = None
-    grammar_report: Optional[str] = None
-    summary_report: Optional[str] = None
-    recommendations: Optional[str] = None
 
 # =========================================================
 # AUTH
@@ -78,17 +77,21 @@ def register(user: UserSignup):
     if cur.fetchone():
         raise HTTPException(400, "Email already exists")
 
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO users (name, email, password)
         VALUES (%s, %s, %s)
         RETURNING id
-    """, (user.name, user.email, hash_password(user.password)))
+        """,
+        (user.name, user.email, hash_password(user.password)),
+    )
 
     user_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
     return {"user_id": user_id}
+
 
 @app.post("/login")
 def login(data: UserLogin):
@@ -105,62 +108,70 @@ def login(data: UserLogin):
     conn.close()
     return {"user_id": row[0]}
 
+
 # =========================================================
-# PROFILE
+# SESSION + STREAK + AI
 # =========================================================
 @app.get("/get-user/{user_id}")
 def get_user(user_id: str):
     conn = get_connection()
     cur = conn.cursor()
 
+    # user basic info
     cur.execute("""
-        SELECT id, name, email, profile_image, streak_count
-        FROM users WHERE id=%s
+        SELECT name, email, streak_count
+        FROM users
+        WHERE id = %s
     """, (user_id,))
     user = cur.fetchone()
+
     if not user:
         raise HTTPException(404, "User not found")
 
-    cur.execute("""
-        SELECT COUNT(*), COALESCE(SUM(duration_seconds),0)
-        FROM sessions WHERE user_id=%s
-    """, (user_id,))
-    total_sessions, speaking_minutes = cur.fetchone()
+    name, email, streak = user
 
+    # total sessions + speaking minutes
+    cur.execute("""
+        SELECT COUNT(*), COALESCE(SUM(duration_seconds), 0)
+        FROM sessions
+        WHERE user_id = %s
+    """, (user_id,))
+    total_sessions, speaking_seconds = cur.fetchone()
+
+    # weekly consistency
     cur.execute("""
         SELECT COUNT(DISTINCT session_at::date)
         FROM sessions
-        WHERE user_id=%s AND session_at >= now() - interval '7 days'
+        WHERE user_id = %s
+          AND session_at >= now() - interval '7 days'
     """, (user_id,))
-    weekly_consistency = int((cur.fetchone()[0] / 7) * 100)
+    active_days = cur.fetchone()[0]
+    weekly_consistency = int((active_days / 7) * 100)
 
     cur.close()
     conn.close()
 
     return {
-        "id": user[0],
-        "name": user[1],
-        "email": user[2],
-        "profile_image": user[3],
-        "streak_count": user[4],
+        "name": name,
+        "email": email,
+        "streak_count": streak or 0,
         "total_sessions": total_sessions,
-        "speaking_minutes": speaking_minutes,
         "weekly_consistency_percent": weekly_consistency,
+        "speaking_minutes": speaking_seconds // 60
     }
 
-# =========================================================
-# SESSION + AI + STREAK
-# =========================================================
 @app.post("/create-session")
 def create_session(data: SessionCreate, bg: BackgroundTasks):
     conn = get_connection()
     cur = conn.cursor()
 
     try:
-        cur.execute("""
-            SELECT last_session_date, streak_count
-            FROM users WHERE id=%s
-        """, (data.user_id,))
+
+        # ----- STREAK -----
+        cur.execute(
+            "SELECT last_session_date, streak_count FROM users WHERE id=%s",
+            (data.user_id,),
+        )
         row = cur.fetchone()
         if not row:
             raise HTTPException(404, "User not found")
@@ -176,47 +187,55 @@ def create_session(data: SessionCreate, bg: BackgroundTasks):
         else:
             new_streak = 1
 
-        cur.execute("""
+        cur.execute(
+            """
             UPDATE users
             SET streak_count=%s, last_session_date=%s
             WHERE id=%s
-        """, (new_streak, today, data.user_id))
+            """,
+            (new_streak, today, data.user_id),
+        )
 
+        # ----- LOCAL ANALYSIS -----
         analysis = analyze_transcript(data.transcript or "")
 
-        cur.execute("""
+        cur.execute(
+            """
             INSERT INTO sessions
             (user_id, audio_url, transcript, duration_seconds, session_at,
              avg_wpm, filler_word_count, pronunciation_score, tone_score, grammar_score)
             VALUES (%s,%s,%s,%s,now(),%s,%s,%s,%s,%s)
             RETURNING id
-        """, (
-            data.user_id,
-            data.audio_url,
-            data.transcript,
-            data.duration_seconds,
-            data.avg_wpm,
-            analysis["filler_word_count"],
-            analysis["pronunciation_score"],
-            analysis["tone_score"],
-            analysis["grammar_score"]
-        ))
+            """,
+            (
+                data.user_id,
+                data.audio_url,
+                data.transcript,
+                data.duration_seconds,
+                data.avg_wpm,
+                analysis["filler_word_count"],
+                analysis["pronunciation_score"],
+                analysis["tone_score"],
+                analysis["grammar_score"],
+            ),
+        )
 
         session_id = cur.fetchone()[0]
 
-        cur.execute("""
-            INSERT INTO analysis_report (session_id, created_at)
-            VALUES (%s, now())
-        """, (session_id,))
+        cur.execute(
+            "INSERT INTO analysis_report (session_id, created_at) VALUES (%s, now())",
+            (session_id,),
+        )
 
         conn.commit()
 
         # 🔥 BACKGROUND AI (Gemini)
+        # ✅ FIXED: correct arguments
         bg.add_task(
             process_ai,
             data.user_id,
             data.transcript or "",
-            session_id
+            session_id,
         )
 
         return {"session_id": session_id, "streak_count": new_streak}
@@ -228,56 +247,98 @@ def create_session(data: SessionCreate, bg: BackgroundTasks):
         cur.close()
         conn.close()
 
-# =========================================================
-# AI BACKGROUND TASK
-# =========================================================
-def process_ai(user_id: str, transcript: str, session_id: str):
-    if not transcript or len(transcript.split()) < 15:
-        return
 
-    improved = generate_ai_improved_transcript(transcript, user_id)
-    if not improved:
-        return
-
+# =========================================================
+# AI BACKGROUND TASK (GEMINI)
+# =========================================================
+def ai_usage_count(user_id: str) -> int:
     conn = get_connection()
     cur = conn.cursor()
+
     cur.execute("""
-        UPDATE analysis_report
-        SET summary_report=%s
-        WHERE session_id=%s
-    """, (improved, session_id))
-    conn.commit()
+        SELECT COUNT(*)
+        FROM analysis_report ar
+        JOIN sessions s ON ar.session_id = s.id
+        WHERE s.user_id = %s
+          AND ar.summary_report IS NOT NULL
+    """, (user_id,))
+
+    count = cur.fetchone()[0]
     cur.close()
     conn.close()
+    return count
+
+def process_ai(user_id: str, transcript: str, session_id: str):
+    # ---- HARD LIMIT: 4 USES ----
+    used = ai_usage_count(user_id)
+
+    if used >= 4:
+        print(f"AI LIMIT REACHED for user {user_id}")
+        return
+
+    if not transcript or len(transcript.split()) < 2:
+        return
+
+    try:
+        improved = generate_ai_improved_transcript(transcript)
+        if not improved:
+            return
+
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE analysis_report
+            SET summary_report = %s
+            WHERE session_id = %s
+        """, (improved, session_id))
+        conn.commit()
+
+        print(f"AI USED {used + 1}/4")
+
+    except Exception as e:
+        print("AI ERROR:", e)
+
+    finally:
+        if "cur" in locals():
+            cur.close()
+        if "conn" in locals():
+            conn.close()
 
 # =========================================================
 # LATEST REPORT
 # =========================================================
+
 @app.get("/get-latest-report/{user_id}")
 def get_latest_report(user_id: str):
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
+    cur.execute(
+        """
         SELECT id, transcript, avg_wpm, filler_word_count,
                pronunciation_score, tone_score
         FROM sessions
         WHERE user_id=%s
         ORDER BY session_at DESC
         LIMIT 1
-    """, (user_id,))
+        """,
+        (user_id,),
+    )
     session = cur.fetchone()
     if not session:
         raise HTTPException(404, "No sessions")
 
     session_id = session[0]
 
-    cur.execute("""
+    cur.execute(
+        """
         SELECT vocabulary_score, fluency_score, clarity_score,
                grammar_report, summary_report, recommendations
         FROM analysis_report
         WHERE session_id=%s
-    """, (session_id,))
+        """,
+        (session_id,),
+    )
     analysis = cur.fetchone() or [None] * 6
 
     cur.close()
@@ -298,11 +359,11 @@ def get_latest_report(user_id: str):
             "grammar_report": analysis[3],
             "summary_report": analysis[4],
             "recommendations": analysis[5],
-        }
+        },
     }
 
 # =========================================================
-# CHART DATA
+# PERFORMANCE TRENDS (FOR REPORT CHART)
 # =========================================================
 @app.get("/report/trends/{user_id}")
 def report_trends(user_id: str):
@@ -312,10 +373,11 @@ def report_trends(user_id: str):
     cur.execute("""
         SELECT avg_wpm, filler_word_count, grammar_score
         FROM sessions
-        WHERE user_id=%s
+        WHERE user_id = %s
         ORDER BY session_at DESC
         LIMIT 7
     """, (user_id,))
+
     rows = cur.fetchall()[::-1]
 
     cur.close()
@@ -334,6 +396,7 @@ def report_trends(user_id: str):
 UPLOAD_DIR = "uploaded_audio"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+
 @app.post("/upload-audio")
 async def upload_audio(file: UploadFile = File(...), user_id: str = Form(...)):
     path = f"{UPLOAD_DIR}/{user_id}_{int(time.time())}.webm"
@@ -341,8 +404,9 @@ async def upload_audio(file: UploadFile = File(...), user_id: str = Form(...)):
         f.write(await file.read())
     return {"url": path}
 
+
 # =========================================================
-# TRANSCRIPT ANALYSIS
+# LOCAL ANALYSIS
 # =========================================================
 def analyze_transcript(text: str):
     if not text:
@@ -366,3 +430,12 @@ def analyze_transcript(text: str):
         "tone_score": tone,
         "grammar_score": grammar,
     }
+
+@app.get("/get-roadmap/{user_id}")
+def get_roadmap(user_id: str):
+    return { "roadmap": [] }
+
+
+@app.get("/get-achievements/{user_id}")
+def get_achievements(user_id: str):
+    return { "achievements": [] }

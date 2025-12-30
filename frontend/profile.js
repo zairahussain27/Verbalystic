@@ -4,13 +4,13 @@ console.log("profile.js loaded");
    SUPABASE INIT
    ========================= */
 const SUPABASE_URL = "https://lbacierqszcgokimijtg.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiYWNpZXJxc3pjZ29raW1panRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0ODEyMTEsImV4cCI6MjA3OTA1NzIxMX0.roI92a8edtAlHGL78effXlQ3XRCwAF2lGpBkyX4SQIE";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiYWNpZXJxc3pjZ29raW1panRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0ODEyMTEsImV4cCI6MjA3OTA1NzIxMX0.roI92a8edtAlHGL78effXlQ3XRCwAF2lGpBkyX4SQIE";
 
-const supabase = window.supabase.createClient(
+window.supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
+
 
 const API_BASE = "http://127.0.0.1:8000";
 
@@ -18,7 +18,7 @@ const API_BASE = "http://127.0.0.1:8000";
    AUTH
    ========================= */
 async function getAuthenticatedUser() {
-  const { data, error } = await supabase.auth.getSession();
+  const { data, error } = await supabaseClient.auth.getSession();
 
   if (error || !data.session) {
     window.location.href = "login.html";
@@ -27,7 +27,23 @@ async function getAuthenticatedUser() {
 
   return data.session.user;
 }
+/* =========================
+   Load User Info
+   ========================= */
+async function loadUserInfo(user) {
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/get-user/${user.id}`);
+    if (!res.ok) return;
 
+    const data = await res.json();
+
+    document.getElementById("userName").innerText =
+      data.name || "User";
+
+  } catch (err) {
+    console.error("Failed to load user info", err);
+  }
+}
 /* =========================
    LOAD PROFILE
    ========================= */
@@ -39,7 +55,7 @@ async function loadProfile(user) {
     const data = await res.json();
 
     // Sidebar
-    document.getElementById("sidebarUserName").innerText =
+    document.getElementById("userName").innerText =
       data.name || "User";
 
     // Profile header
@@ -150,7 +166,7 @@ async function loadAchievements(userId) {
    LOGOUT
    ========================= */
 document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   window.location.href = "login.html";
 });
 

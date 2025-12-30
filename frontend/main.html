@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!--Main HTML-->
+<!-- Main HTML -->
 <html lang="en" class="light">
 
 <head>
@@ -7,11 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VERBALYSTIC</title>
 
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    
+
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -52,150 +54,171 @@
 
 <body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
 
-    <div class="flex h-screen">
+<div class="flex h-screen">
 
-        <!-- SIDEBAR -->
-        <aside class="w-64 bg-white dark:bg-gray-800 p-6 flex flex-col justify-between rounded-r-2xl">
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white dark:bg-gray-800 p-6 flex flex-col justify-between rounded-r-2xl">
 
-            <!-- TOP SECTION -->
-            <div>
-                <div class="flex items-center justify-between mb-10">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-primary w-9 h-9 rounded-lg flex items-center justify-center"></div>
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Verbalystic</h1>
-                    </div>
-                    <div id="slider"></div>
-                </div>
-
-                <!-- NAVIGATION -->
-                <nav class="flex flex-col space-y-2">
-
-                    <a href="main.html"
-                        class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400">
-                        <span class="material-icons-outlined">add_circle_outline</span>
-                        <span class="font-medium">New Session</span>
-                    </a>
-
-                    <a href="history.html"
-                        class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400">
-                        <span class="material-icons-outlined">history</span>
-                        <span class="font-medium">History</span>
-                    </a>
-
-                    <a href="report.html"
-                        class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400">
-                        <span class="material-icons-outlined">bar_chart</span>
-                        <span class="font-medium">Report</span>
-                    </a>
-
-                    <a href="profile.html"
-                        class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400">
-                        <span class="material-icons-outlined">person_outline</span>
-                        <span class="font-medium">Profile</span>
-                    </a>
-
-                    <a href="setting.html"
-                        class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400">
-                        <span class="material-icons-outlined">settings</span>
-                        <span class="font-medium">Settings</span>
-                    </a>
-
-                </nav>
-            </div>
-
-            <!-- USER SECTION (BOTTOM) -->
-            <div class="flex flex-col space-y-2">
-
-                <div class="flex items-center gap-3 px-4 py-2">
-                    <!-- Dynamic user profile -->
-                    <img id="userImage" class="w-9 h-9 rounded-full object-cover"
-                        src="https://placehold.co/40" />
-                    <div>
-                        <p id="userName" class="font-semibold text-sm text-gray-900 dark:text-white">
-                            User
-                        </p>
-                    </div>
-                </div>
-
-                <!-- LOGOUT -->
-                <a id="logoutBtn"
-                    class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-400 cursor-pointer">
-                    <span class="material-icons-outlined">logout</span>
-                    <span class="font-medium">Logout</span>
+        <!-- TOP -->
+        <div>
+            <div class="flex items-center justify-between mb-10">
+                <a href="index.html" class="flex items-center gap-3">
+                <img
+                    src="image.jpeg"
+                    alt="Verbalystic logo"
+                    class="w-9 h-9 rounded-lg object-cover"
+                />
+                <h1 class="text-xl font-bold text-gray-900">Verbalystic</h1>
                 </a>
             </div>
 
-        </aside>
+            <!-- NAV -->
+            <nav class="flex flex-col space-y-2">
+                <a href="main.html" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                    <span class="material-icons-outlined">add_circle_outline</span>
+                    <span class="font-medium">New Session</span>
+                </a>
 
-        <!-- MAIN CONTENT -->
-        <main class="flex-1 flex flex-col items-center justify-center p-10 relative">
+               
 
-            <!-- TIMER -->
-            <div class="absolute top-10 right-10 flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
-                <span class="material-icons-outlined text-gray-500 dark:text-gray-400">timer</span>
-                <p id="timerDisplay" class="text-lg font-medium text-gray-700 dark:text-gray-300">00:00</p>
+                <a href="report.html" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                    <span class="material-icons-outlined">bar_chart</span>
+                    <span class="font-medium">Report</span>
+                </a>
+
+                <a href="profile.html" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                    <span class="material-icons-outlined">person_outline</span>
+                    <span class="font-medium">Profile</span>
+                </a>
+
+                <a href="setting.html" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                    <span class="material-icons-outlined">settings</span>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- USER SECTION (BOTTOM) -->
+        <div class="flex items-center justify-between px-4 py-2">
+
+            <!-- USER (AVATAR + NAME) -->
+            <div class="flex items-center gap-3"href="profile.html">
+                <img
+                    id="userImage"
+                    class="w-9 h-9 rounded-full object-cover"
+                    src="https://placehold.co/40"
+                    alt="User"
+                />
+                <span
+                    id="userName"
+                    class="text-sm font-medium text-gray-900 dark:text-gray-200"
+                    >
+                    User
+                </span>
+
             </div>
 
-            <!-- MIC + DECIBEL METER SECTION -->
-            <div class="flex-grow w-full flex items-center justify-center relative">
+            <!-- LOGOUT BUTTON -->
+            <button
+                id="logoutBtn"
+                class="flex items-center justify-center w-9 h-9 rounded-lg
+                    text-red-600 hover:bg-red-50
+                    dark:text-red-400 dark:hover:bg-red-900/20
+                    cursor-pointer"
+                title="Logout"
+            >
+                <span class="material-icons-outlined">logout</span>
+            </button>
 
-                <div class="w-80 h-80 bg-primary rounded-full opacity-70 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        </div>
+
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 flex flex-col items-center justify-center p-10 relative">
+
+        <!-- TIMER -->
+        <div class="absolute top-10 right-10 flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
+            <span class="material-icons-outlined text-gray-500 dark:text-gray-400">timer</span>
+            <p id="timerDisplay" class="text-lg font-medium text-gray-700 dark:text-gray-300">00:00</p>
+        </div>
+
+        <!-- CENTER AREA -->
+        <div class="flex-grow w-full flex items-center justify-center relative">
+
+            <!-- 🔵 UPDATED CENTER CIRCLE ONLY -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+
+                <!-- Ripple container (JS controlled) -->
+                <div id="rippleContainer" class="absolute inset-0 hidden flex items-center justify-center pointer-events-none">
+
+                    <div class="absolute w-80 h-80 bg-primary rounded-full opacity-30 animate-ping"></div>
+                    <div class="absolute w-80 h-80 bg-primary rounded-full opacity-20 animate-ping [animation-delay:0.6s]"></div>
+                    <div class="absolute w-80 h-80 bg-primary rounded-full opacity-10 animate-ping [animation-delay:1.2s]"></div>
                 </div>
 
-                <div class="relative w-full h-full flex items-center justify-center">
+                <!-- Core visualizer -->
+                <div id="visualizerCircle"
+                     class="w-80 h-80 rounded-full bg-primary opacity-80 shadow-xl transition-all duration-200 ease-out flex items-center justify-center">
+                    <div class="w-full h-full rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 opacity-90"></div>
+                </div>
+            </div>
 
-                    <!-- DECIBEL -->
-                    <div class="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2">
-                        <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Decibel Meter</p>
+            <!-- DECIBEL -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2">
+                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Decibel Meter</p>
 
-                        <div class="flex items-center gap-4">
-
-                            <div class="flex flex-col h-48 justify-between text-right">
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">80dB</p>
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">10dB</p>
-                            </div>
-
-                            <div class="w-3 h-48 bg-gray-200 dark:bg-gray-700 rounded-full flex flex-col-reverse">
-                                <div id="decibelBar" class="gradient-bar rounded-full" style="height: 50%;"></div>
-                            </div>
-
-                        </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex flex-col h-48 justify-between text-right">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">80dB</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">10dB</p>
                     </div>
 
+                    <div class="w-3 h-48 bg-gray-200 dark:bg-gray-700 rounded-full flex flex-col-reverse">
+                        <div id="decibelBar" class="gradient-bar rounded-full" style="height: 50%;"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- MIC BUTTON + SUGGESTION -->
-            <div class="w-full flex flex-col items-center gap-6">
-                <!-- FLOATING GLOW -->
-                <div class="absolute -top-6 w-24 h-24 bg-blue-400/40 blur-2xl rounded-full animate-pulse"></div>
+        </div>
 
+        <!-- MIC + SUGGESTION -->
+        <div class="w-full flex flex-col items-center gap-6">
+            <div class="absolute -top-6 w-24 h-24 bg-blue-400/40 blur-2xl rounded-full animate-pulse"></div>
 
-                <!-- SUGGESTION BOX -->
-                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-full px-5 py-2.5 flex items-center">
-    
-                    <span class="material-icons-outlined text-gray-500 dark:text-gray-400 text-[18px] leading-none" style="width:24px;">
-                       lightbulb_outline
-                    </span>
-
-                    <span id="suggestionText"class="text-sm text-gray-700 dark:text-gray-300 leading-none ml-[2px]">
-                        Suggestion: Try speaking a little louder.
-                    </span>
-                </div>
-
-                <!-- MIC BUTTON -->
-                <button id="micButton"class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-600 transition-colors">
-                    <span class="material-icons-outlined text-[32px]">mic</span>
-                </button>
-
+            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-full px-5 py-2.5 flex items-center">
+                <span class="material-icons-outlined text-gray-500 dark:text-gray-400" style="width:24px;">
+                    lightbulb_outline
+                </span>
+                <span id="suggestionText" class="text-sm text-gray-700 dark:text-gray-300 ml-1">
+                    Suggestion: Try speaking a little louder.
+                </span>
             </div>
 
-        </main>
+            <button id="micButton" class="w-16 h-16 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center relative overflow-hidden">
+                <div
+                    id="micBg"
+                    class="absolute inset-0 bg-gradient-to-tr from-blue-600 to-blue-400 transition-all duration-300"
+                ></div>
 
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="main.js"></script>
+                <span class="material-icons-outlined text-[32px] text-white relative z-10">
+                    mic
+                </span>
+            </button>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- then main JS -->
+<script src="main.js"></script>
 
 </body>
-
 </html>

@@ -1,90 +1,92 @@
 <!DOCTYPE html>
 <html class="light" lang="en">
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Verbalystic</title>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login - Verbalystic</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#359EFF",
-                        "background-light": "#f5f7f8",
-                        "background-dark": "#101a22"
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: "#359EFF",
+                            "background-light": "#f5f7f8",
+                            "background-dark": "#101a22"
+                        }
                     }
                 }
-            }
-        };
-    </script>
-</head>
+            };
+        </script>
+    </head>
 
-<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
 
-    <div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4">
+        <div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4">
 
-        <div
-            class="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-[#0f1923] sm:p-8">
+            <div
+                class="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-[#0f1923] sm:p-8">
 
-            <div class="flex flex-col items-center space-y-6">
+                <div class="flex flex-col items-center space-y-6">
 
-                <h1 class="text-2xl font-bold text-[#333333] dark:text-white">
-                    Login
-                </h1>
-
-                <form id="loginForm" class="w-full space-y-4">
-
-                    <!-- EMAIL -->
-                    <label class="flex flex-col w-full">
-                        <p class="pb-2 text-sm font-medium">Email</p>
-                        <input
-                            name="email"
-                            type="email"
-                            required
-                            placeholder="Enter your email"
-                            class="form-input h-11 w-full rounded-lg border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:border-gray-700"
-                        />
-                    </label>
-
-                    <!-- PASSWORD -->
-                    <label class="flex flex-col w-full">
-                        <p class="pb-2 text-sm font-medium">Password</p>
-                        <input
-                            name="password"
-                            type="password"
-                            required
-                            placeholder="Enter your password"
-                            class="form-input h-11 w-full rounded-lg border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:border-gray-700"
-                        />
-                    </label>
-
-                    <button
-                        type="submit"
-                        class="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white hover:bg-primary/90">
+                    <h1 class="text-2xl font-bold text-[#333333] dark:text-white">
                         Login
-                    </button>
+                    </h1>
 
-                </form>
+                    <form id="loginForm" class="w-full space-y-4">
 
-                <p class="text-sm text-[#333333] dark:text-gray-300">
-                    Don’t have an account?
-                    <a href="signup.html" class="font-semibold text-primary hover:underline">
-                        Sign up
-                    </a>
-                </p>
+                        <!-- EMAIL -->
+                        <label class="flex flex-col w-full">
+                            <p class="pb-2 text-sm font-medium">Email</p>
+                            <input
+                                name="email"
+                                type="email"
+                                required
+                                placeholder="Enter your email"
+                                class="form-input h-11 w-full rounded-lg border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:border-gray-700"
+                            />
+                        </label>
 
+                        <!-- PASSWORD -->
+                        <label class="flex flex-col w-full">
+                            <p class="pb-2 text-sm font-medium">Password</p>
+                            <input
+                                name="password"
+                                type="password"
+                                required
+                                placeholder="Enter your password"
+                                class="form-input h-11 w-full rounded-lg border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:border-gray-700"
+                            />
+                        </label>
+
+                        <button
+                            type="submit"
+                            class="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white hover:bg-primary/90">
+                            Login
+                        </button>
+
+                    </form>
+
+                    <p class="text-sm text-[#333333] dark:text-gray-300">
+                        Don’t have an account?
+                        <a href="signup.html" class="font-semibold text-primary hover:underline">
+                            Sign up
+                        </a>
+                    </p>
+
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="login.js"></script>
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="supabaseClient.js"></script>
+
+        <script src="login.js"></script>
+    </body>
 </html>

@@ -7,9 +7,9 @@ console.log("Main.js (real-time) loaded");
 const SUPABASE_URL = "https://lbacierqszcgokimijtg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiYWNpZXJxc3pjZ29raW1panRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0ODEyMTEsImV4cCI6MjA3OTA1NzIxMX0.roI92a8edtAlHGL78effXlQ3XRCwAF2lGpBkyX4SQIE";
 
-const supabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
+window.supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
 );
 
 
@@ -28,7 +28,7 @@ const FILLER_WORDS = ["um", "uh", "like", "you know", "so", "actually", "basical
    ========================= */
 
 async function getAuthenticatedUser() {
-    const { data: sessionData, error } = await supabase.auth.getSession();
+    const { data: sessionData, error } = await supabaseClient.auth.getSession();
 
     if (error || !sessionData.session) {
         console.warn("No active Supabase session");
@@ -69,6 +69,29 @@ const micButton = document.getElementById("micButton");
 const decibelBar = document.getElementById("decibelBar");
 const timerDisplay = document.getElementById("timerDisplay");
 const suggestionText = document.getElementById("suggestionText");
+const visualizerCircle = document.getElementById("visualizerCircle");
+const micBg = document.getElementById("micBg");
+const rippleContainer = document.getElementById("rippleContainer");
+
+/* =========================
+   Load User Info
+   ========================= */
+async function loadUserInfo(user) {
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/get-user/${user.id}`);
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    document.getElementById("userName").innerText =
+      data.name || "User";
+
+  } catch (err) {
+    console.error("Failed to load user info", err);
+  }
+}
+
+
 
 /* =========================
    Socket.IO Loader
@@ -124,9 +147,52 @@ function downsampleBuffer(buffer, inputSampleRate, outSampleRate) {
    ========================= */
 
 function setMicActiveUI(active) {
-    micButton.classList.toggle("bg-blue-700", active);
-    micButton.classList.toggle("bg-primary", !active);
+  // Remove ALL possible gradient states
+  micBg.classList.remove(
+    "from-blue-600",
+    "to-blue-400",
+    "from-blue-700",
+    "to-blue-500",
+    "from-red-600",
+    "to-red-400",
+    "from-red-700",
+    "to-red-500"
+  );
+
+  micButton.classList.remove(
+    "shadow-blue-500/40",
+    "shadow-red-500/40"
+  );
+
+  if (active) {
+    // 🔴 RECORDING (RED)
+    micBg.classList.add("from-red-600", "to-red-400");
+    micButton.classList.add("shadow-red-500/40");
+
+    // ❌ disable hover while recording
+    micButton.onmouseenter = null;
+    micButton.onmouseleave = null;
+  } else {
+    // 🔵 IDLE (BLUE)
+    micBg.classList.add("from-blue-600", "to-blue-400");
+    micButton.classList.add("shadow-blue-500/40");
+
+    // ✅ hover effect (blue → darker blue)
+    micButton.onmouseenter = () => {
+      micBg.classList.replace("from-blue-600", "from-blue-700");
+      micBg.classList.replace("to-blue-400", "to-blue-500");
+    };
+
+    micButton.onmouseleave = () => {
+      micBg.classList.replace("from-blue-700", "from-blue-600");
+      micBg.classList.replace("to-blue-500", "to-blue-400");
+    };
+  }
 }
+
+
+
+
 
 function updateTimer() {
     if (!isRecording || !sessionStartTs) {
@@ -156,6 +222,13 @@ function updateDecibelBar(rms) {
     let pct = Math.max(0, Math.min(1, (db + 100) / 100));
     smoothedDbPercent = smoothedDbPercent * decibelSmoothing + pct * (1 - decibelSmoothing);
     decibelBar.style.height = `${Math.round(smoothedDbPercent * 100)}%`;
+
+    // 🔊 Animate middle circle with voice
+    if (visualizerCircle) {
+        const scale = 1 + smoothedDbPercent * 0.5;
+        visualizerCircle.style.transform = `scale(${scale})`;
+        visualizerCircle.style.boxShadow = `0 0 ${10 + smoothedDbPercent * 20}px rgba(59, 130, 246, ${0.3 + smoothedDbPercent * 0.7})`;
+    }
 }
 
 function updateSuggestionText(text) {
@@ -331,3 +404,10 @@ window.addEventListener("beforeunload", () => isRecording && stopRecording());
 setMicActiveUI(false);
 updateTimer();
 updateSuggestionText("Click the mic to start a session.");
+
+(async function init() {
+  const user = await getAuthenticatedUser();
+  if (!user) return;
+
+  await loadUserInfo(user);
+})();

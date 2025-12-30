@@ -50,11 +50,16 @@
     <!-- TOP -->
     <div>
       <div class="flex items-center justify-between mb-10">
-        <div class="flex items-center gap-3">
-          <div class="bg-primary w-9 h-9 rounded-lg"></div>
+        <a href="index.html" class="flex items-center gap-3">
+          <img
+            src="image.jpeg"
+            alt="Verbalystic logo"
+            class="w-9 h-9 rounded-lg object-cover"
+          />
           <h1 class="text-xl font-bold text-gray-900">Verbalystic</h1>
-        </div>
+        </a>
       </div>
+
 
       <!-- NAV -->
       <nav class="flex flex-col space-y-2">
@@ -65,11 +70,7 @@
           <span class="font-medium">New Session</span>
         </a>
 
-        <a href="history.html"
-          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-          <span class="material-icons-outlined">history</span>
-          <span class="font-medium">History</span>
-        </a>
+        
 
         <a href="report.html"
           class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
@@ -93,24 +94,38 @@
       </nav>
     </div>
 
-    <!-- BOTTOM -->
-    <div class="flex flex-col space-y-2">
+    <!-- USER SECTION (BOTTOM) -->
+    <div class="flex items-center justify-between px-4 py-2">
 
-      <div class="flex items-center gap-3 px-4 py-2">
-        <img id="sidebarUserImage"
-             class="w-9 h-9 rounded-full object-cover"
-             src="https://placehold.co/40" />
-        <p id="sidebarUserName"
-           class="font-semibold text-sm text-gray-900">User</p>
-      </div>
+        <!-- USER (AVATAR + NAME) -->
+        <div class="flex items-center gap-3"href="profile.html">
+            <img
+                id="userImage"
+                class="w-9 h-9 rounded-full object-cover"
+                src="https://placehold.co/40"
+                alt="User"
+            />
+            <span
+                id="userName"
+                class="text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
+                User
+            </span>
+        </div>
 
-      <a id="logoutBtn"
-        class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
-        <span class="material-icons-outlined">logout</span>
-        <span class="font-medium">Logout</span>
-      </a>
+        <!-- LOGOUT BUTTON -->
+        <button
+            id="logoutBtn"
+            class="flex items-center justify-center w-9 h-9 rounded-lg
+                text-red-600 hover:bg-red-50
+                cursor-pointer"
+            title="Logout"
+        >
+            <span class="material-icons-outlined">logout</span>
+        </button>
 
     </div>
+
   </aside>
 
   <!-- MAIN CONTENT (UNCHANGED) -->
@@ -167,6 +182,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
 <script src="./profile.js"></script>
 </body>
 </html>

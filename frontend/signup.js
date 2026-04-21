@@ -55,6 +55,7 @@ form.addEventListener("submit", async (e) => {
             id: user.id,
             email: user.email,
             name: name
+            // Note: Storing plain passwords is NOT recommended in production. Use hashing instead.
         });
 
     if (insertError) {

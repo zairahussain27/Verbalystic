@@ -1,11 +1,41 @@
 console.log("report.js loaded");
 
 /* =========================
+   MOCK DATA
+========================= */
+
+const mockReport = {
+  session: {
+    transcript: "Myself Zaira today I practicing speaking about climate changes and it impact.",
+    avg_wpm: 118,
+    filler_word_count: 6,
+    pronunciation_score: 82,
+    tone_score: 74
+  },
+  analysis: {
+    vocabulary_score: 78,
+    fluency_score: 80,
+    clarity_score: 76,
+    grammar_report: null,
+    summary_report: "My name is Zaira and Today I practiced speaking about climate change and its impact.",
+    recommendations: "Pause instead of fillers and structure sentences better."
+  }
+};
+
+const mockTrends = {
+  labels: ["S1", "S2", "S3", "S4", "S5"],
+  grammar: [60, 65, 70, 75, 80],
+  flow: [90, 100, 110, 115, 120],
+  fillers: [12, 10, 8, 7, 5]
+};
+
+
+/* =========================
    SUPABASE INIT
 ========================= */
 
 const SUPABASE_URL = "https://lbacierqszcgokimijtg.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiYWNpZXJxc3pjZ29raW1panRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0ODEyMTEsImV4cCI6MjA3OTA1NzIxMX0.roI92a8edtAlHGL78effXlQ3XRCwAF2lGpBkyX4SQIE";
+const SUPABASE_ANON_KEY = "YOUR_KEY";
 
 window.supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
@@ -27,8 +57,9 @@ async function getAuthenticatedUser() {
   return data.session.user;
 }
 
+
 /* =========================
-   LOAD USER (NAME + STREAK)
+   USER INFO
 ========================= */
 
 async function loadUserInfo(user) {
@@ -37,22 +68,96 @@ async function loadUserInfo(user) {
     if (!res.ok) return;
 
     const data = await res.json();
-    console.log("User info:", data);
 
-    const nameEl = document.getElementById("userName");
-    if (nameEl) nameEl.innerText = data.name || "User";
+    document.getElementById("userName").innerText =
+      data.name || "User";
 
-    const streakEl = document.getElementById("streakCount");
-    if (streakEl)
-      streakEl.innerText = `${data.streak_count || 0} Day Streak`;
+    document.getElementById("streakCount").innerText =
+      `${data.streak_count || 0} Day Streak`;
 
   } catch (err) {
-    console.error("Failed to load user info", err);
+    console.error("User load error", err);
   }
 }
 
+
 /* =========================
-   PERFORMANCE CHART
+   REPORT
+========================= */
+
+async function loadLatestReport(userId) {
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/get-latest-report/${userId}`
+    );
+
+    let data = null;
+
+    if (res.ok) {
+      data = await res.json();
+    }
+
+    let session = data?.session;
+    let analysis = data?.analysis;
+
+    // 🔥 EMPTY → MOCK
+    if (!session || !session.transcript) {
+      console.warn("Using mock report");
+      session = mockReport.session;
+      analysis = mockReport.analysis;
+    }
+
+    /* ----- RAW TRANSCRIPT ----- */
+    document.getElementById("rawTranscript").innerText =
+      session.transcript || "—";
+
+    /* ----- AI IMPROVED (with fallback) ----- */
+    let improvedText = analysis?.summary_report;
+
+    if (!improvedText || improvedText.trim() === "") {
+      improvedText = mockReport.analysis.summary_report;
+    }
+
+    document.getElementById("improvedTranscript").innerText = improvedText;
+
+    /* ----- GRAMMAR TABLE ----- */
+    const grammarTable = document.getElementById("grammarTable");
+    grammarTable.innerHTML = "";
+
+    let issues = [];
+
+    if (analysis?.grammar_report) {
+      try {
+        issues = JSON.parse(analysis.grammar_report);
+      } catch {}
+    }
+
+    if (!issues.length) {
+      grammarTable.innerHTML = `
+        <tr>
+          <td colspan="3" class="py-3 text-center text-gray-500">
+            No grammar issues found
+          </td>
+        </tr>`;
+    } else {
+      issues.forEach(i => {
+        grammarTable.innerHTML += `
+          <tr class="border-t">
+            <td>${i.issue}</td>
+            <td>${i.suggestion}</td>
+            <td>${i.errorCount}</td>
+          </tr>`;
+      });
+    }
+
+  } catch (err) {
+    console.error("Report error", err);
+  }
+}
+
+
+/* =========================
+   CHART
 ========================= */
 
 async function loadPerformanceChart(userId) {
@@ -63,129 +168,40 @@ async function loadPerformanceChart(userId) {
     const res = await fetch(
       `http://127.0.0.1:8000/report/trends/${userId}`
     );
-    if (!res.ok) return;
 
-    const data = await res.json();
+    let data = null;
+
+    if (res.ok) {
+      data = await res.json();
+    }
+
+    // 🔥 EMPTY → MOCK
+    if (!data || !data.labels || data.labels.length === 0) {
+      console.warn("Using mock trends");
+      data = mockTrends;
+    }
 
     new Chart(canvas, {
       type: "line",
       data: {
         labels: data.labels,
         datasets: [
-          {
-            label: "Grammar",
-            data: data.grammar,
-            borderColor: "#359EFF",
-            tension: 0.4
-          },
-          {
-            label: "Flow",
-            data: data.flow,
-            borderColor: "#10b981",
-            tension: 0.4
-          },
-          {
-            label: "Fillers",
-            data: data.fillers,
-            borderColor: "#f97316",
-            tension: 0.4
-          }
+          { label: "Grammar", data: data.grammar, borderColor: "#359EFF" },
+          { label: "Flow", data: data.flow, borderColor: "#10b981" },
+          { label: "Fillers", data: data.fillers, borderColor: "#f97316" }
         ]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true },
-          x: { grid: { display: false } }
-        }
+        maintainAspectRatio: false
       }
     });
 
   } catch (err) {
-    console.error("Chart load failed", err);
+    console.error("Chart error", err);
   }
 }
 
-/* =========================
-   LOAD LATEST REPORT
-========================= */
-
-async function loadLatestReport(userId) {
-  try {
-    const res = await fetch(
-      `http://127.0.0.1:8000/get-latest-report/${userId}`
-    );
-
-    if (!res.ok) {
-      console.warn("No report found");
-      return;
-    }
-
-    const { session, analysis } = await res.json();
-
-    /* ----- TRANSCRIPTS ----- */
-    document.getElementById("rawTranscript").innerText =
-      session?.transcript || "—";
-
-    document.getElementById("improvedTranscript").innerText =
-      analysis?.summary_report || "—";
-
-    /* ----- GRAMMAR TABLE ----- */
-    const grammarTable = document.getElementById("grammarTable");
-    grammarTable.innerHTML = "";
-
-    let issues = [];
-    if (analysis?.grammar_report) {
-      try {
-        issues = JSON.parse(analysis.grammar_report);
-      } catch {
-        console.warn("Grammar report is not JSON");
-      }
-    }
-
-    if (!issues.length) {
-      grammarTable.innerHTML = `
-        <tr>
-          <td colspan="3" class="py-3 text-gray-500 text-center">
-            No grammar issues found
-          </td>
-        </tr>`;
-    } else {
-      issues.forEach(i => {
-        grammarTable.innerHTML += `
-          <tr class="border-t">
-            <td class="py-3">${i.issue}</td>
-            <td class="py-3">${i.suggestion}</td>
-            <td class="py-3">${i.errorCount}</td>
-          </tr>`;
-      });
-    }
-
-    /* ----- TIPS (STATIC FOR NOW) ----- */
-    const tipsEl = document.getElementById("tipsContainer");
-    tipsEl.innerHTML = `
-      <div class="bg-white border rounded-xl p-4">
-        <h4 class="font-semibold">Reduce Fillers</h4>
-        <p class="text-sm text-gray-500">Pause instead of saying “um” or “like”.</p>
-      </div>
-
-      <div class="bg-white border rounded-xl p-4">
-        <h4 class="font-semibold">Improve Flow</h4>
-        <p class="text-sm text-gray-500">Practice sentence linking.</p>
-      </div>
-
-      <div class="bg-white border rounded-xl p-4">
-        <h4 class="font-semibold">Grammar Focus</h4>
-        <p class="text-sm text-gray-500">Watch verb tense consistency.</p>
-      </div>
-    `;
-
-  } catch (err) {
-    console.error("Report load failed", err);
-  }
-}
 
 /* =========================
    LOGOUT
@@ -195,6 +211,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await supabaseClient.auth.signOut();
   window.location.href = "login.html";
 });
+
 
 /* =========================
    INIT

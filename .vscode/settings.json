@@ -1,4 +1,5 @@
 {
     "python.defaultInterpreterPath": "C:\\Users\\nagar\\Desktop\\Minor\\Verbalystic\\venv\\Scripts\\python.exe",
-    "python.pythonPath": "C:\\Users\\nagar\\Desktop\\Minor\\Verbalystic\\venv\\Scripts\\python.exe"
+    "python.pythonPath": "C:\\Users\\nagar\\Desktop\\Minor\\Verbalystic\\venv\\Scripts\\python.exe",
+    "liveServer.settings.port": 5501
 }

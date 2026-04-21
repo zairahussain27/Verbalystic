@@ -4,24 +4,25 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date, timedelta
 import bcrypt, os, time
+import uvicorn
 
-from realtime import sio_app
-from database import get_connection
+from backend.realtime import sio_app
+from backend.database import get_connection
 from textblob import TextBlob
-from ai_service import generate_ai_improved_transcript
-from dotenv import load_dotenv
-import google.generativeai as genai
-
-load_dotenv()
-
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
 
 # =========================================================
 # APP SETUP
 # =========================================================
 app = FastAPI()
 app.mount("/ws", sio_app)
+
+@app.get("/")
+def root():
+    return {"status": "Verbalystic backend running"}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
 
 app.add_middleware(
     CORSMiddleware,

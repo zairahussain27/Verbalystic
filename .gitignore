@@ -18,3 +18,4 @@ __pycache__/
 Thumbs.db
 
 backend/uploaded_audio/
+uploaded_audio/

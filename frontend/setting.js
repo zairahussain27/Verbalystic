@@ -1,5 +1,5 @@
 console.log("setting.js loaded");
-
+const BASE_URL = "https://verbalystic-idto.onrender.com";
 /* =========================
    SUPABASE INIT
    ========================= */
@@ -40,7 +40,7 @@ async function getAuthenticatedUser() {
 
 async function loadUserInfo(user) {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/get-user/${user.id}`);
+    const res = await fetch(`${BASE_URL}/get-user/${user.id}`);
     if (!res.ok) return;
 
     const data = await res.json();

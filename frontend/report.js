@@ -64,7 +64,7 @@ async function getAuthenticatedUser() {
 
 async function loadUserInfo(user) {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/get-user/${user.id}`);
+    const res = await fetch(`https://verbalystic-idto.onrender.com/get-user/${user.id}`);
     if (!res.ok) return;
 
     const data = await res.json();
@@ -88,7 +88,7 @@ async function loadUserInfo(user) {
 async function loadLatestReport(userId) {
   try {
     const res = await fetch(
-      `http://127.0.0.1:8000/get-latest-report/${userId}`
+      `https://verbalystic-idto.onrender.com/get-latest-report/${userId}`
     );
 
     let data = null;
@@ -166,7 +166,7 @@ async function loadPerformanceChart(userId) {
 
   try {
     const res = await fetch(
-      `http://127.0.0.1:8000/report/trends/${userId}`
+      `https://verbalystic-idto.onrender.com/report/trends/${userId}`
     );
 
     let data = null;

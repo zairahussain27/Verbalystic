@@ -12,7 +12,7 @@ window.supabaseClient = window.supabase.createClient(
 );
 
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://verbalystic-idto.onrender.com";
 
 /* =========================
    AUTH
@@ -32,7 +32,7 @@ async function getAuthenticatedUser() {
    ========================= */
 async function loadUserInfo(user) {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/get-user/${user.id}`);
+    const res = await fetch(`${API_BASE}/get-user/${user.id}`)
     if (!res.ok) return;
 
     const data = await res.json();

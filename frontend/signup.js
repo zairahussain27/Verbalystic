@@ -46,7 +46,12 @@ form.addEventListener("submit", async (e) => {
         return;
 }
 
-    const user = data.user;
+    const user = data?.user || data?.session?.user;
+
+    if (!user) {
+        alert("Check your email for verification before logging in");
+        return;
+    }
 
     // INSERT INTO users table
     const { error: insertError } = await supabaseClient

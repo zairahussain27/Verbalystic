@@ -16,10 +16,10 @@ window.supabaseClient = window.supabase.createClient(
 /* =========================
    Config
    ========================= */
-
-const SOCKET_URL = "http://127.0.0.1:8000";
-const UPLOAD_AUDIO_URL = "http://127.0.0.1:8000/upload-audio";
-const CREATE_SESSION_URL = "http://127.0.0.1:8000/create-session";
+const BASE_URL = "https://verbalystic-idto.onrender.com";
+const SOCKET_URL = BASE_URL;
+const UPLOAD_AUDIO_URL = `${BASE_URL}/upload-audio`;
+const CREATE_SESSION_URL = `${BASE_URL}/create-session`;
 
 const FILLER_WORDS = ["um", "uh", "like", "you know", "so", "actually", "basically", "right"];
 
@@ -78,7 +78,7 @@ const rippleContainer = document.getElementById("rippleContainer");
    ========================= */
 async function loadUserInfo(user) {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/get-user/${user.id}`);
+    const res = await fetch(`${BASE_URL}/get-user/${user.id}`);
     if (!res.ok) return;
 
     const data = await res.json();

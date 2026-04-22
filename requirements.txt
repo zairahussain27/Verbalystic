@@ -7,3 +7,5 @@ textblob
 python-socketio
 vosk
 google-generativeai
+pydantic[email]
+email-validator

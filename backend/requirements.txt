@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-psycopg2-binary
-python-dotenv
-bcrypt
-textblob
-python-socketio
-vosk
-google-generativeai

@@ -9,3 +9,4 @@ vosk
 google-generativeai
 pydantic[email]
 email-validator
+python-multipart

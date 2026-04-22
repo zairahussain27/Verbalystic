@@ -85,7 +85,7 @@ async function loadSettings() {
   }
 
   // 2️⃣ Backend → background fetch (NON-BLOCKING)
-  fetch(`http://127.0.0.1:8000/get-user/${user.id}`)
+  fetch(`${BASE_URL}/get-user/${user.id}`)
     .then(res => res.ok ? res.json() : null)
     .then(data => {
       if (data?.name) {
